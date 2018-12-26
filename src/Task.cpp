@@ -19,7 +19,7 @@ public:
         std::vector<char> lineByFormat; //TODO::ON heap?
         std::string command = line.substr(0,line.find_first_of(' '));
         char opcode [2];
-        if(command.compare("REGISTER") == 0 | command.compare("LOGIN") == 0 ){
+        if((command.compare("REGISTER") == 0) | (command.compare("LOGIN") == 0) ){
             if(command.compare("REGISTER") == 0) {
                 //opcode
                 shortToBytes(1, opcode);
@@ -31,13 +31,13 @@ public:
             //username
             line = line.substr(line.find_first_of(' ')+1);
             std::string username = line.substr(0, line.find_first_of(' '));
-            for(int i=0 ;i<username.length(); i=i+1){
+            for(int i=0 ;i<(int)username.length(); i=i+1){
                lineByFormat.push_back(username.at(i));
             }
             lineByFormat.push_back('\0');
             //password
             std::string password = line.substr(line.find_first_of(' ')+1);
-            for(int i=0 ;i<password.length(); i=i+1){
+            for(int i=0 ;i<(int)password.length(); i=i+1){
                 lineByFormat.push_back(password.at(i));
             }
             lineByFormat.push_back('\0');
@@ -67,11 +67,11 @@ public:
             //user name list
             line = line.substr(line.find_first_of(' ')+1);
             vector<string> userNameList;
-            while(line.find(' ')!=-1){
+            while((int)line.find(' ')!=-1){
                 userNameList.push_back(line.substr(0, line.find_first_of(' ')));
                 line = line.substr(line.find_first_of(' ')+1);
             }
-            for(int i =0; i<userNameList.size() ; i= i+1){
+            for(int i =0; i<(int)userNameList.size() ; i= i+1){
                 copy(userNameList.at(i).begin(), userNameList.at(i).end(), back_inserter(lineByFormat));
             }
             lineByFormat.push_back('\0');
@@ -115,6 +115,9 @@ public:
             string username = line.substr(line.find_first_of(' ') + 1);
             copy(username.begin(), username.end(), back_inserter(lineByFormat));
             lineByFormat.push_back('\0');
+        }
+        else{
+            std::cout << "illegal command" << std::endl;
         }
         string newLine(lineByFormat.begin(), lineByFormat.end());
         return newLine;
@@ -189,7 +192,7 @@ public:
                 answer += " " + numUser;
                 answer += " ";
                 char t =bytes[6];
-                for(int j = 6;j<bytes.size()-1; j++) {
+                for(int j = 6;j<(int)bytes.size()-1; j++) {
                     if (t != '\0') {
                         answer += t;
                         t = bytes[j];
@@ -203,7 +206,7 @@ public:
                 answer += numUser;
                 answer += " ";
                 char t =bytes[6];
-                for(int j = 6;j<bytes.size()-1; j++) {
+                for(int j = 6;j<(int)bytes.size()-1; j++) {
                     if (t != '\0') {
                         answer += t;
                         t = bytes[j];
@@ -236,6 +239,7 @@ public:
             std::string line(buf);
             string newLine = encode(line);
             int len = newLine.length();
+
             if (!conn.sendLine(newLine)) {
                 std::cout << "Disconnected. Exiting...\n" << std::endl;
                 break;
@@ -251,6 +255,7 @@ public:
     void getFromServer() {
         std::string answer;
         while (true) {
+            std::cout<<"hi"<<endl;
             // Get back an answer: by using the expected number of bytes (len bytes + newline delimiter)
             // We could also use: connectionHandler.getline(answer) and then get the answer without the newline char at the end
             if (!conn.getLine(answer)) {
