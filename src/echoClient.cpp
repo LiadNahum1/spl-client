@@ -18,18 +18,18 @@ int main (int argc, char *argv[]) {
     std::string host = argv[1];
     short port = atoi(argv[2]);
 
-    ConnectionHandler connectionHandler(host, port);
-    if (!connectionHandler.connect()) {
-        std::cerr << "Cannot connect to " << host << ":" << port << std::endl;
-        return 1;
-    }
-    std::mutex mutex;
-    Task task1(connectionHandler, mutex);
-    Task task2(connectionHandler, mutex);
-
-    std::thread th1(&Task::sendToServer, &task1);
-    std::thread th2(&Task::getFromServer, &task2);
-    th1.join();
-    th2.join();
+   // ConnectionHandler connectionHandler(host, port);
+   // if (!connectionHandler.connect()) {
+   //     std::cerr << "Cannot connect to " << host << ":" << port << std::endl;
+   //     return 1;
+   // }
+   // std::mutex mutex;
+   // Task task1(connectionHandler, mutex);
+   // Task task2(connectionHandler, mutex);
+//
+   // std::thread th1(&Task::sendToServer, &task1);
+   // std::thread th2(&Task::getFromServer, &task2);
+   // th1.join();
+   // th2.join();
     return 0;
 }

@@ -74,7 +74,7 @@ bool ConnectionHandler::sendLine(std::string& line) {
     return sendFrameAscii(line, '\n');
 }
 
-bool ConnectionHandler::getFrameAscii(std::vector& frame, char delimiter) {
+bool ConnectionHandler::getFrameAscii(std::string& frame, char delimiter) {
     char ch;
     // Stop when we encounter the null character.
     // Notice that the null character is not appended to the frame string.
