@@ -32,7 +32,7 @@ public:
             line = line.substr(line.find_first_of(' ')+1);
             std::string username = line.substr(0, line.find_first_of(' '));
             for(int i=0 ;i<(int)username.length(); i=i+1){
-               lineByFormat.push_back(username.at(i));
+                lineByFormat.push_back(username.at(i));
             }
             lineByFormat.push_back('\0');
             //password
@@ -123,110 +123,11 @@ public:
         return newLine;
 
     }
-    short bytesToShort(char* bytesArr)
-    {
-        short result = (short)((bytesArr[0] & 0xff) << 8);
-        result += (short)(bytesArr[1] & 0xff);
-        return result;
-    }
 
     void shortToBytes(short num, char* bytesArr)
     {
         bytesArr[0] = ((num >> 8) & 0xFF);
         bytesArr[1] = (num & 0xFF);
-    }
-    std::string decode(std::string line){
-        std::vector<char> bytes(line.begin(), line.end());
-        std::string answer("");
-        bytes.push_back('\0');
-        char opCodeB[2] = {bytes[0],bytes[1]};
-        short opCode  = bytesToShort(opCodeB);
-        if(opCode == 9){
-            answer += "NOTIFICATION ";
-            if (bytes[2] == '0'){
-                answer += "PM ";
-            }
-            else{
-                answer += "Public ";
-            }
-            int i = 3;
-            char t = bytes[i];
-            while(t != '\0'){
-                answer += t;
-                std::cout << t << std::endl;
-                i++;
-                t =bytes[i];
-            }
-            i++; //to jump over the zero byte
-            t = bytes[i];
-            answer += " ";
-            while(t != '\0'){
-                answer += t;
-                std::cout << t << std::endl;
-                i++;
-                t =bytes[i];
-            }
-
-        }
-        else if(opCode == 10){
-            answer += "ACK ";
-            //massage opcode
-            char opCodeMB[2] = {bytes[2],bytes[3]};
-            short mOpCode  = bytesToShort(opCodeMB);
-            answer += mOpCode + " ";
-            if(mOpCode == 8){
-                char numUserP[2] = {bytes[4],bytes[5]};
-                short numUser  = bytesToShort(numUserP);
-                answer += numUser;
-
-                char numUserF[2] = {bytes[6],bytes[7]};
-                short numfollow  = bytesToShort(numUserF);
-                answer += " "+ numfollow;
-                char numUserMe[2] = {bytes[8],bytes[9]};
-                short numFMe  = bytesToShort(numUserMe);
-                answer += " " +numFMe;
-            }
-            if(mOpCode == 7) {
-                char numUserB[2] = {bytes[4],bytes[5]};
-                short numUser  = bytesToShort(numUserB);
-                answer += " " + numUser;
-                answer += " ";
-                char t =bytes[6];
-                for(int j = 6;j<(int)bytes.size()-1; j++) {
-                    if (t != '\0') {
-                        answer += t;
-                        t = bytes[j];
-                    }
-                    else answer += " ";
-                }
-            }
-            if(mOpCode == 4){
-                char numUserB[2] = {bytes[4],bytes[5]};
-                short numUser  = bytesToShort(numUserB);
-                answer += numUser;
-                answer += " ";
-                char t =bytes[6];
-                for(int j = 6;j<(int)bytes.size()-1; j++) {
-                    if (t != '\0') {
-                        answer += t;
-                        t = bytes[j];
-                    }
-                    else answer += " ";
-                }
-            }
-
-        }
-        else if(opCode == 11){
-            answer += "Error ";
-            char opCodeMB[2] = {bytes[2],bytes[3]};
-            short mOpCode  = bytesToShort(opCodeMB);
-            answer += mOpCode;
-        }
-        else{
-            std::cout << "not correct message" << std::endl;
-        }
-        std::cout << answer << std::endl;
-        return answer;
     }
 
     void sendToServer() {
@@ -255,23 +156,18 @@ public:
     void getFromServer() {
         std::string answer;
         while (true) {
-            std::cout<<"hi"<<endl;
             // Get back an answer: by using the expected number of bytes (len bytes + newline delimiter)
             // We could also use: connectionHandler.getline(answer) and then get the answer without the newline char at the end
             if (!conn.getLine(answer)) {
                 std::cout << "Disconnected. Exiting...\n" << std::endl;
                 break;
             }
-            int len = answer.length();
-            // A C string must end with a 0 char delimiter.  When we filled the answer buffer from the socket
-            // we filled up to the \n char - we must make sure now that a 0 char is also present. So we truncate last character.
-            answer.resize(len - 1);
-            std::string toPrint = decode(answer);
-            if (answer == "ACK<3>") {
+
+            if (answer == "ACK3") {
                 std::cout << "Exiting...\n" << std::endl;
                 break;
             }
-            else     std::cout << toPrint << std::endl;
+            else     std::cout << answer << std::endl;
 
         }
     }

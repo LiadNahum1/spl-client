@@ -41,8 +41,10 @@ bool ConnectionHandler::getBytes(char bytes[], unsigned int bytesToRead) {
         while (!error && bytesToRead > tmp ) {
             tmp += socket_.read_some(boost::asio::buffer(bytes+tmp, bytesToRead-tmp), error);
         }
-        if(error)
+        if(error) {
+            cout<<"Error"<<endl;
             throw boost::system::system_error(error);
+        }
     } catch (std::exception& e) {
         std::cerr << "recv failed (Error: " << e.what() << ')' << std::endl;
         return false;
@@ -66,8 +68,81 @@ bool ConnectionHandler::sendBytes(const char bytes[], int bytesToWrite) {
     return true;
 }
 
+short bytesToShort(char* bytesArr)
+{
+    short result = (short)((bytesArr[0] & 0xff) << 8);
+    result += (short)(bytesArr[1] & 0xff);
+    return result;
+}
+
 bool ConnectionHandler::getLine(std::string& line) {
-    return getFrameAscii(line, '\n');
+    char opcode[2];
+    getBytes(opcode, 2);
+    short opCodeShort = bytesToShort(opcode);
+
+    //Notification
+    if(opCodeShort == 9) {
+        line.append("NOTIFICATION ");
+        char pm[1];
+        getBytes(pm, 1);
+        if(pm[0] == 0){ //private message
+            line.append("PM ");
+        }
+        else
+            line.append("Public ");
+        getFrameAscii(line , '\0'); //posting user
+        line.append(" ");
+        getFrameAscii(line , '\0');//content
+
+    }
+        //ACK OR ERROR
+    else if(opCodeShort == 10 || opCodeShort == 11){
+        char msgOpCode[2];
+        getBytes(msgOpCode, 2);
+        short msgOpCodeShort= bytesToShort(msgOpCode);
+        if(opCodeShort == 10) {
+            line.append("ACK");
+            line.append(std::to_string(msgOpCodeShort));
+            line.append(" ");
+            if (msgOpCodeShort == 4 || msgOpCodeShort == 7 || msgOpCodeShort == 8) {
+                //NumOfUsers or NumPosts
+                char number[2];
+                getBytes(number, 2);
+                short mNum = bytesToShort(number);
+                line.append(std::to_string(mNum));
+                line.append(" ");
+                //FOLLOW OF USERLIST
+                if (msgOpCodeShort == 4 || msgOpCodeShort == 7) {
+                    //UserNameList
+                    for (int i = 0; i < mNum; i++) {
+                        getFrameAscii(line, '\0');
+                        line.append(" ");
+                    }
+                }
+                    //STAT
+                else {
+                    char numFollowers[2];
+                    getBytes(numFollowers, 2);
+                    short followers = bytesToShort(numFollowers);
+                    line.append(std::to_string(followers));
+                    line.append(" ");
+                    char numFollowing[2];
+                    getBytes(numFollowing, 2);
+                    short following = bytesToShort(numFollowing);
+                    line.append(std::to_string(following));
+                    line.append(" ");
+                }
+            }
+        }
+            //ERROR
+        else{
+            line.append("ERROR");
+            line.append(std::to_string(msgOpCodeShort));
+            line.append(" ");
+        }
+    }
+    cout<<"out"<<endl;
+    return true;
 }
 
 bool ConnectionHandler::sendLine(std::string& line) {
