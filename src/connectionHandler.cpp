@@ -90,7 +90,7 @@ bool ConnectionHandler::getLine(std::string& line) {
         line.append("NOTIFICATION ");
         char pm[1];
         getBytes(pm, 1);
-        if(pm[0] == 0){ //private message
+        if(pm[0] == '0'){ //private message
             line.append("PM ");
         }
         else
@@ -106,7 +106,7 @@ bool ConnectionHandler::getLine(std::string& line) {
         getBytes(msgOpCode, 2);
         short msgOpCodeShort= bytesToShort(msgOpCode);
         if(opCodeShort == 10) {
-            line.append("ACK");
+            line.append("ACK ");
             line.append(std::to_string(msgOpCodeShort));
             line.append(" ");
             if (msgOpCodeShort == 4 || msgOpCodeShort == 7 || msgOpCodeShort == 8) {
@@ -158,9 +158,11 @@ bool ConnectionHandler::getFrameAscii(std::string& frame, char delimiter) {
     // Stop when we encounter the null character.
     // Notice that the null character is not appended to the frame string.
     try {
+
         do{
             getBytes(&ch, 1);
-            frame.append(1, ch);
+            if(ch!= delimiter)
+                frame.append(1, ch);
         }while (delimiter != ch);
     } catch (std::exception& e) {
         std::cerr << "recv failed (Error: " << e.what() << ')' << std::endl;

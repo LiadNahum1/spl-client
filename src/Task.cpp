@@ -177,7 +177,7 @@ public:
                 break;
             }
 
-            if (answer == "ACK3") {
+            if (answer == "ACK 3") {
                 std::cout << "Exiting...\n" << std::endl;
                 break;
             }
