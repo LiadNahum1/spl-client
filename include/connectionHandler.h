@@ -8,6 +8,7 @@
 #include <string>
 #include <iostream>
 #include <boost/asio.hpp>
+#include <mutex>
 
 using boost::asio::ip::tcp;
 
@@ -17,9 +18,10 @@ private:
     const short port_;
     boost::asio::io_service io_service_;   // Provides core I/O functionality
     tcp::socket socket_;
+    std::mutex & _mutex;
 
 public:
-    ConnectionHandler(std::string host, short port);
+    ConnectionHandler(std::string host, short port, std::mutex& mutex);
     virtual ~ConnectionHandler();
 
     // Connect to the remote machine

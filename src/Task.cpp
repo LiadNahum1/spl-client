@@ -168,7 +168,7 @@ public:
                 break;
             }
             else     std::cout << answer << std::endl;
-
+            answer = "";
         }
     }
 };

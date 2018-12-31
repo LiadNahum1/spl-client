@@ -4,6 +4,8 @@
 
 #include "../include/connectionHandler.h"
 #include <iostream>
+#include <mutex>
+
 using boost::asio::ip::tcp;
 using std::cin;
 using std::cout;
@@ -11,7 +13,8 @@ using std::cerr;
 using std::endl;
 using std::string;
 
-ConnectionHandler::ConnectionHandler(string host, short port): host_(host), port_(port), io_service_(), socket_(io_service_){}
+
+ConnectionHandler::ConnectionHandler(string host, short port, std::mutex& mutex): host_(host), port_(port), io_service_(), socket_(io_service_), _mutex(mutex){}
 
 ConnectionHandler::~ConnectionHandler() {
     close();
@@ -35,6 +38,7 @@ bool ConnectionHandler::connect() {
 }
 
 bool ConnectionHandler::getBytes(char bytes[], unsigned int bytesToRead) {
+
     size_t tmp = 0;
     boost::system::error_code error;
     try {
@@ -53,6 +57,7 @@ bool ConnectionHandler::getBytes(char bytes[], unsigned int bytesToRead) {
 }
 
 bool ConnectionHandler::sendBytes(const char bytes[], int bytesToWrite) {
+
     int tmp = 0;
     boost::system::error_code error;
     try {
@@ -141,7 +146,6 @@ bool ConnectionHandler::getLine(std::string& line) {
             line.append(" ");
         }
     }
-    cout<<"out"<<endl;
     return true;
 }
 

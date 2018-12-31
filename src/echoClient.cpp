@@ -18,12 +18,13 @@ int main (int argc, char *argv[]) {
     std::string host = argv[1];
     short port = atoi(argv[2]);
 
-    ConnectionHandler connectionHandler(host, port);
+    std::mutex mutex;
+    ConnectionHandler connectionHandler(host, port, mutex);
     if (!connectionHandler.connect()) {
         std::cerr << "Cannot connect to " << host << ":" << port << std::endl;
         return 1;
     }
-    std::mutex mutex;
+
     Task task1(connectionHandler, mutex);
     Task task2(connectionHandler, mutex);
 
