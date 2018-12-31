@@ -132,6 +132,7 @@ public:
         }
         else{
             std::cout << "illegal command" << std::endl;
+            return "";
         }
         string newLine(lineByFormat.begin(), lineByFormat.end());
         return newLine;
@@ -154,16 +155,17 @@ public:
             std::string line(buf);
             string newLine = encode(line);
             int len = newLine.length();
-
-            if (!conn.sendLine(newLine)) {
-                std::cout << "Disconnected. Exiting...\n" << std::endl;
-                break;
+            if(newLine != "") {
+                if (!conn.sendLine(newLine)) {
+                    std::cout << "Disconnected. Exiting...\n" << std::endl;
+                    break;
+                }
+                if (line.compare("LOGOUT") == 0) {
+                    break;
+                }
+                // connectionHandler.sendLine(line) appends '\n' to the message. Therefor we send len+1 bytes.
+                std::cout << "Sent " << len + 1 << " bytes to server" << std::endl;
             }
-            if(line.compare("LOGOUT") == 0){
-                break;
-            }
-            // connectionHandler.sendLine(line) appends '\n' to the message. Therefor we send len+1 bytes.
-            std::cout << "Sent " << len + 1 << " bytes to server" << std::endl;
 
         }
     }
