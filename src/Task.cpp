@@ -58,23 +58,37 @@ public:
             //follow/unfollow
             std::string isFollow = line.substr(line.find_first_of(' ')+1, 1);
             lineByFormat.push_back(isFollow[0]);
-            line = line.substr(line.find_first_of(' ')+2);
-            string numOfUsers(line.substr(0,line.find_first_of(' ')));
+            line = line.substr(line.find_first_of(' ')+3);
+
             char numOfUsersArr[2];
-            shortToBytes(atoi(numOfUsers.c_str()), numOfUsersArr);
-            lineByFormat.push_back(numOfUsersArr[0]);
-            lineByFormat.push_back(numOfUsersArr[1]);
-            //user name list
-            line = line.substr(line.find_first_of(' ')+1);
-            vector<string> userNameList;
-            while((int)line.find(' ')!=-1){
-                userNameList.push_back(line.substr(0, line.find_first_of(' ')));
-                line = line.substr(line.find_first_of(' ')+1);
+            //wants to follow after 0 users
+            if(line.find(' ') == -1){
+                shortToBytes(0, numOfUsersArr);
+                lineByFormat.push_back(numOfUsersArr[0]);
+                lineByFormat.push_back(numOfUsersArr[1]);
             }
-            for(int i =0; i<(int)userNameList.size() ; i= i+1){
-                copy(userNameList.at(i).begin(), userNameList.at(i).end(), back_inserter(lineByFormat));
+            else {
+                string numOfUsers(line.substr(0, line.find_first_of(' ')));
+                shortToBytes(atoi(numOfUsers.c_str()), numOfUsersArr);
+                lineByFormat.push_back(numOfUsersArr[0]);
+                lineByFormat.push_back(numOfUsersArr[1]);
+                //user name list
+                line = line.substr(line.find_first_of(' ') + 1);
+                string user;
+                //more than one user to follow after there is a space
+                while ((int) line.find(' ') != -1) {
+                    user = line.substr(0, line.find_first_of(' '));
+                    copy(user.begin(), user.end(), back_inserter(lineByFormat));
+                    lineByFormat.push_back('\0');
+                    line = line.substr(line.find_first_of(' ') + 1);
+                }
+                //there is one user to follow after
+                if (line != "") {
+                    copy(line.begin(), line.end(), back_inserter(lineByFormat));
+                }
             }
             lineByFormat.push_back('\0');
+
 
         }
         else if(command.compare("POST") == 0){
