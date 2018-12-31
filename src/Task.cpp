@@ -12,8 +12,9 @@ class Task{
 private:
     ConnectionHandler & conn;
     std::mutex & _mutex;
+    bool & shouldTerminate;
 public:
-    Task (ConnectionHandler& con, std::mutex& mutex) : conn(con), _mutex(mutex) {}
+    Task (ConnectionHandler& con, std::mutex& mutex, bool& shouldTer) : conn(con), _mutex(mutex), shouldTerminate(shouldTer) {}
 
     string encode(std::string line){
         std::vector<char> lineByFormat; //TODO::ON heap?
@@ -146,7 +147,7 @@ public:
     }
 
     void sendToServer() {
-        while (1) {
+        while (!shouldTerminate) {
             const short bufsize = 1024;
             char buf[bufsize];
             //we get the line
@@ -156,12 +157,14 @@ public:
             string newLine = encode(line);
             int len = newLine.length();
             if(newLine != "") {
-                if (!conn.sendLine(newLine)) {
-                    std::cout << "Disconnected. Exiting...\n" << std::endl;
-                    break;
-                }
-                if (line.compare("LOGOUT") == 0) {
-                    break;
+                if(!shouldTerminate) {
+                    if (!conn.sendLine(newLine)) {
+                        std::cout << "Disconnected. Exiting...\n" << std::endl;
+                        shouldTerminate = true;
+                    }
+                    //if (line.compare("LOGOUT") == 0) {
+                      //  break;
+                    //}
                 }
                 // connectionHandler.sendLine(line) appends '\n' to the message. Therefor we send len+1 bytes.
                 std::cout << "Sent " << len + 1 << " bytes to server" << std::endl;
@@ -171,17 +174,18 @@ public:
     }
     void getFromServer() {
         std::string answer;
-        while (true) {
+        while (!shouldTerminate) {
             // Get back an answer: by using the expected number of bytes (len bytes + newline delimiter)
             // We could also use: connectionHandler.getline(answer) and then get the answer without the newline char at the end
             if (!conn.getLine(answer)) {
                 std::cout << "Disconnected. Exiting...\n" << std::endl;
-                break;
+                shouldTerminate = true;
             }
 
-            if (answer == "ACK 3") {
+            if (answer == "ACK 3 ") {
+                std::cout << "ACK 3...\n" << std::endl;
                 std::cout << "Exiting...\n" << std::endl;
-                break;
+                shouldTerminate = true;
             }
             else     std::cout << answer << std::endl;
             answer = "";
