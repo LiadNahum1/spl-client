@@ -143,7 +143,6 @@ bool ConnectionHandler::getLine(std::string& line) {
         else{
             line.append("ERROR ");
             line.append(std::to_string(msgOpCodeShort));
-            line.append(" ");
         }
     }
     return true;

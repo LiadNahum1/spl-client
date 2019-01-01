@@ -150,18 +150,28 @@ public:
         while (!shouldTerminate) {
             const short bufsize = 1024;
             char buf[bufsize];
-            //we get the line
-            //todo?
             std::cin.getline(buf, bufsize);
             //encode
             std::string line(buf);
             string newLine = encode(line);
-            int len = newLine.length();
             if(newLine != "") {
                 if(!shouldTerminate) {
                     if (!conn.sendLine(newLine)) {
                         std::cout << "Disconnected. Exiting...\n" << std::endl;
                         shouldTerminate = true;
+                    }
+                    if(line == "LOGOUT"){
+                        while(1){
+                         if(shouldTerminate)
+                             return;
+                         else
+                         {
+                             if(isFailedLogout) {
+                                 isFailedLogout = false;
+                                 break;
+                             }
+                         }
+                        }
                     }
                 }
             }
@@ -171,18 +181,19 @@ public:
     void getFromServer() {
         std::string answer;
         while (!shouldTerminate) {
-            // Get back an answer: by using the expected number of bytes (len bytes + newline delimiter)
-            // We could also use: connectionHandler.getline(answer) and then get the answer without the newline char at the end
             if (!conn.getLine(answer)) {
                 std::cout << "Disconnected. Exiting...\n" << std::endl;
                 shouldTerminate = true;
             }
-
+            //SO I WILL KNOW A LOGOUT ATEMPTION FAILED
+            if(answer == "ERROR 3"){
+                isFailedLogout = true;
+            }
             if (answer == "ACK 3") {
                 std::cout << answer << std::endl;
                 shouldTerminate = true;
             }
-            //SO I WILL KNOW A LOGOUT ATEMPTION FAILED
+
             else     std::cout << answer << std::endl;
             answer = "";
         }
