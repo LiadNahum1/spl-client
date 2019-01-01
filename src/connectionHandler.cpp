@@ -108,8 +108,8 @@ bool ConnectionHandler::getLine(std::string& line) {
         if(opCodeShort == 10) {
             line.append("ACK ");
             line.append(std::to_string(msgOpCodeShort));
-            line.append(" ");
             if (msgOpCodeShort == 4 || msgOpCodeShort == 7 || msgOpCodeShort == 8) {
+                line.append(" ");
                 //NumOfUsers or NumPosts
                 char number[2];
                 getBytes(number, 2);

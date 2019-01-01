@@ -151,6 +151,7 @@ public:
             const short bufsize = 1024;
             char buf[bufsize];
             //we get the line
+            //todo?
             std::cin.getline(buf, bufsize);
             //encode
             std::string line(buf);
@@ -162,11 +163,7 @@ public:
                         std::cout << "Disconnected. Exiting...\n" << std::endl;
                         shouldTerminate = true;
                     }
-                    //if (line.compare("LOGOUT") == 0) {
-                      //  break;
-                    //}
                 }
-                // connectionHandler.sendLine(line) appends '\n' to the message. Therefor we send len+1 bytes.
                 std::cout << "Sent " << len + 1 << " bytes to server" << std::endl;
             }
 
@@ -182,9 +179,8 @@ public:
                 shouldTerminate = true;
             }
 
-            if (answer == "ACK 3 ") {
-                std::cout << "ACK 3...\n" << std::endl;
-                std::cout << "Exiting...\n" << std::endl;
+            if (answer == "ACK 3") {
+                std::cout << answer << std::endl;
                 shouldTerminate = true;
             }
             else     std::cout << answer << std::endl;
