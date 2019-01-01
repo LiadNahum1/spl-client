@@ -18,7 +18,7 @@ int main (int argc, char *argv[]) {
     std::string host = argv[1];
     short port = atoi(argv[2]);
 
-    std::mutex mutex;
+
     ConnectionHandler connectionHandler(host, port);
     if (!connectionHandler.connect()) {
         std::cerr << "Cannot connect to " << host << ":" << port << std::endl;
@@ -26,8 +26,9 @@ int main (int argc, char *argv[]) {
     }
 
     bool shouldTerminate = false;
-    Task task1(connectionHandler, mutex, shouldTerminate);
-    Task task2(connectionHandler, mutex, shouldTerminate);
+    bool isfail = false;
+    Task task1(connectionHandler, isfail, shouldTerminate);
+    Task task2(connectionHandler, isfail, shouldTerminate);
 
     std::thread th1(&Task::sendToServer, &task1);
     std::thread th2(&Task::getFromServer, &task2);

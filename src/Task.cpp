@@ -11,10 +11,10 @@ using namespace std;
 class Task{
 private:
     ConnectionHandler & conn;
-    std::mutex & _mutex;
+    bool & isFailedLogout;
     bool & shouldTerminate;
 public:
-    Task (ConnectionHandler& con, std::mutex& mutex, bool& shouldTer) : conn(con), _mutex(mutex), shouldTerminate(shouldTer) {}
+    Task (ConnectionHandler& con, bool& isfail, bool& shouldTer) : conn(con), isFailedLogout(isfail), shouldTerminate(shouldTer) {}
 
     string encode(std::string line){
         std::vector<char> lineByFormat; //TODO::ON heap?
@@ -164,7 +164,6 @@ public:
                         shouldTerminate = true;
                     }
                 }
-                std::cout << "Sent " << len + 1 << " bytes to server" << std::endl;
             }
 
         }
@@ -183,6 +182,7 @@ public:
                 std::cout << answer << std::endl;
                 shouldTerminate = true;
             }
+            //SO I WILL KNOW A LOGOUT ATEMPTION FAILED
             else     std::cout << answer << std::endl;
             answer = "";
         }
