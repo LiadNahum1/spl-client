@@ -149,13 +149,11 @@ bool ConnectionHandler::getLine(std::string& line) {
 }
 
 bool ConnectionHandler::sendLine(std::string& line) {
-    return sendFrameAscii(line, '\n');
+    return sendBytes(line.c_str(),line.length());
 }
 
 bool ConnectionHandler::getFrameAscii(std::string& frame, char delimiter) {
     char ch;
-    // Stop when we encounter the null character.
-    // Notice that the null character is not appended to the frame string.
     try {
 
         do{
