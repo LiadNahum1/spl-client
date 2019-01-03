@@ -17,7 +17,7 @@ public:
     Task (ConnectionHandler& con, bool& isfail, bool& shouldTer) : conn(con), isFailedLogout(isfail), shouldTerminate(shouldTer) {}
 
     string encode(std::string line){
-        std::vector<char> lineByFormat; //TODO::ON heap?
+        std::vector<char> lineByFormat;
         std::string command = line.substr(0,line.find_first_of(' '));
         char opcode [2];
         if((command.compare("REGISTER") == 0) | (command.compare("LOGIN") == 0) ){
@@ -63,7 +63,7 @@ public:
 
             char numOfUsersArr[2];
             //wants to follow after 0 users
-            if(line.find(' ') == -1){
+            if((int)line.find(' ') == -1){
                 shortToBytes(0, numOfUsersArr);
                 lineByFormat.push_back(numOfUsersArr[0]);
                 lineByFormat.push_back(numOfUsersArr[1]);
